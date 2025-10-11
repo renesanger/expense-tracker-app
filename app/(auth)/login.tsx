@@ -29,7 +29,7 @@ const Login = () => {
     if(!res.success) 
         Alert.alert("Login", res.msg);
     }
-  };
+    
   return (
     <ScreenWrapper>
       <View style={styles.container}>
