@@ -5,12 +5,7 @@ import React from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import Loading from "./Loading";
 
-const Button = ({
-  style,
-  onPress,
-  loading = false,
-  children,
-}: CustomButtonProps) => {
+const Button = ({ style, onPress, loading, children }: CustomButtonProps) => {
   if (loading) {
     return (
       <View style={[styles.button, style, { backgroundColor: "transparent" }]}>
