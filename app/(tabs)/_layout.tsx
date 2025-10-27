@@ -7,7 +7,7 @@ const _layout = () => {
   return (
     <Tabs
       tabBar={(props) => <CustomTabs {...props} />}
-      screenOptions={{ headerShown: true }}
+      screenOptions={{ headerShown: false }}
     >
       <Tabs.Screen name="index" />
       <Tabs.Screen name="statistics" />

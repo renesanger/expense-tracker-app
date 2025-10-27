@@ -1,14 +1,15 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import ScreenWrapper from "@/components/ScreenWrapper";
+import React from "react";
+import { StyleSheet, Text } from "react-native";
 
 const Wallet = () => {
   return (
-    <View>
+    <ScreenWrapper>
       <Text>Wallet</Text>
-    </View>
-  )
-}
+    </ScreenWrapper>
+  );
+};
 
-export default Wallet
+export default Wallet;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});
