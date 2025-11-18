@@ -7,7 +7,7 @@ const StackLayout = () => {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen
-        name="(modal)/profileModal"
+        name="(modals)/profileModal"
         options={{
           presentation: "modal",
         }}
