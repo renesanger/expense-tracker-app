@@ -7,6 +7,7 @@ import Typo from "@/components/Typo";
 import { colors, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
 import { getProfileImage } from "@/services/imageService";
+import { updateUser } from "@/services/userService";
 import { UserDataType } from "@/types";
 import { scale, verticalScale } from "@/utils/styling";
 import { Image } from "expo-image";
@@ -21,7 +22,7 @@ import {
 } from "react-native";
 
 const ProfileModal = () => {
-  const { user } = useAuth();
+  const { user, updateUserData } = useAuth();
   const [userData, setUserData] = useState<UserDataType>({
     name: "",
     image: null,
@@ -37,12 +38,20 @@ const ProfileModal = () => {
 
   const onSubmit = async () => {
     let { name, image } = userData;
-    if (!name.trim) {
+    if (!name.trim()) {
       Alert.alert("User", "Please fill all the fields");
       return;
     }
 
-    console.log("good to go");
+    setLoading(true);
+    const res = await updateUser(user?.uid as string, userData);
+    setLoading(false);
+    if(res.success){
+      // update user
+      updateUserData(user?.)
+    } else {
+      Alert.alert("User", res.msg)
+    }
   };
   return (
     <ModalWrapper>
