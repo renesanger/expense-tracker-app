@@ -11,6 +11,7 @@ import { updateUser } from "@/services/userService";
 import { UserDataType } from "@/types";
 import { scale, verticalScale } from "@/utils/styling";
 import { Image } from "expo-image";
+import { useRouter } from "expo-router";
 import * as Icon from "phosphor-react-native";
 import React, { useEffect, useState } from "react";
 import {
@@ -20,6 +21,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 
 const ProfileModal = () => {
   const { user, updateUserData } = useAuth();
@@ -28,6 +30,7 @@ const ProfileModal = () => {
     image: null,
   });
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setUserData({
@@ -35,6 +38,32 @@ const ProfileModal = () => {
       image: user?.image || null,
     });
   }, [user]);
+
+  const onPickImage = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      Alert.alert(
+        "Permission required",
+        "Permission to access the media library is required."
+      );
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      // allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.3,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+      setUserData({...userData, image: result.assets[0]});
+    }
+  }
 
   const onSubmit = async () => {
     let { name, image } = userData;
@@ -46,11 +75,12 @@ const ProfileModal = () => {
     setLoading(true);
     const res = await updateUser(user?.uid as string, userData);
     setLoading(false);
-    if(res.success){
+    if (res.success) {
       // update user
-      updateUserData(user?.)
+      updateUserData(user?.uid as string);
+      router.back();
     } else {
-      Alert.alert("User", res.msg)
+      Alert.alert("User", res.msg);
     }
   };
   return (
@@ -71,7 +101,7 @@ const ProfileModal = () => {
               contentFit="cover"
               transition={100}
             />
-            <TouchableOpacity style={styles.editIcon}>
+            <TouchableOpacity onPress={onPickImage} style={styles.editIcon}>
               <Icon.PencilIcon
                 size={verticalScale(20)}
                 color={colors.neutral800}
