@@ -7,7 +7,11 @@ import Typo from "./Typo";
 
 const HomeCard = () => {
   return (
-    <ImageBackground source={require("../assets/images/card.png")}>
+    <ImageBackground
+      source={require("../assets/images/card.png")}
+      resizeMode="stretch"
+      style={styles.bgImage}
+    >
       <View style={styles.container}>
         <View>
           {/* total balance */}

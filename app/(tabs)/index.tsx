@@ -1,16 +1,20 @@
+import Button from "@/components/Button";
 import HomeCard from "@/components/HomeCard";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import TransactionList from "@/components/TransactionList";
 import Typo from "@/components/Typo";
-import { colors, spacingY } from "@/constants/theme";
+import { colors, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
 import { verticalScale } from "@/utils/styling";
+import { useRouter } from "expo-router";
 import * as Icons from "phosphor-react-native";
 import React from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 
 const Home = () => {
   const { user } = useAuth();
+  const router = useRouter();
+
   return (
     <ScreenWrapper>
       <View style={styles.container}>
@@ -41,12 +45,22 @@ const Home = () => {
           </View>
 
           <TransactionList
-            data={[1, 2, 2]}
+            data={[1, 2, 3, 4, 5, 6]}
             loading={false}
             emptyListMessage="No Transactions added yet"
             title="Recent Transactions"
           />
         </ScrollView>
+        <Button
+          style={styles.floatingButton}
+          onPress={() => router.push("/(modals)/transactionModal")}
+        >
+          <Icons.PlusIcon
+            color={colors.black}
+            weight="bold"
+            size={verticalScale(24)}
+          />
+        </Button>
       </View>
     </ScreenWrapper>
   );
@@ -68,7 +82,7 @@ const styles = StyleSheet.create({
   },
   searchIcon: {
     backgroundColor: colors.neutral700,
-    padding: spacingY._10,
+    padding: spacingX._10,
     borderRadius: 50,
   },
   floatingButton: {
@@ -81,7 +95,7 @@ const styles = StyleSheet.create({
   },
   scrollViewStyle: {
     marginTop: spacingY._10,
-    paddingTop: verticalScale(100),
+    paddingBottom: verticalScale(100),
     gap: spacingY._25,
   },
 });

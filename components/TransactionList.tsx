@@ -1,9 +1,11 @@
+import { expenseCategories } from "@/constants/data";
 import { colors, radius, spacingX, spacingY } from "@/constants/theme";
 import { TransactionItemProps, TransactionListType } from "@/types";
 import { verticalScale } from "@/utils/styling";
 import { FlashList } from "@shopify/flash-list";
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import Loading from "./Loading";
 import Typo from "./Typo";
 
@@ -60,10 +62,45 @@ const TransactionItem = ({
   index,
   handleClick,
 }: TransactionItemProps) => {
+  let category = expenseCategories["utilities"];
+  const IconComponent = category.icon;
   return (
-    <View>
-      <Typo>Transaction Item</Typo>
-    </View>
+    <Animated.View
+      entering={FadeInDown.delay(index * 70)
+        .springify()
+        .damping(14)}
+    >
+      <TouchableOpacity style={styles.row} onPress={() => handleClick(item)}>
+        <View style={[styles.icon, { backgroundColor: category.bgColor }]}>
+          {IconComponent && (
+            <IconComponent
+              size={verticalScale(25)}
+              weight="fill"
+              color={colors.white}
+            />
+          )}
+        </View>
+
+        <View style={styles.categoryDes}>
+          <Typo size={17}>{category.label}</Typo>
+          <Typo
+            size={12}
+            color={colors.neutral400}
+            textProps={{ numberOfLines: 1 }}
+          >
+            paid wifi bill
+          </Typo>
+        </View>
+        <View style={styles.amountDate}>
+          <Typo fontWeight={"500"} color={colors.rose}>
+            - $23
+          </Typo>
+          <Typo size={13} color={colors.neutral400}>
+            12 Jan
+          </Typo>
+        </View>
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
@@ -79,12 +116,16 @@ const styles = StyleSheet.create({
     minHeight: 3,
   },
   row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     gap: spacingX._12,
     marginBottom: spacingY._12,
 
     //list with background
     backgroundColor: colors.neutral800,
     padding: spacingY._10,
+    paddingHorizontal: spacingX._10,
     borderRadius: radius._17,
   },
   icon: {
