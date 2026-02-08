@@ -9,6 +9,7 @@ import { expenseCategories, transactionTypes } from "@/constants/data";
 import { colors, radius, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
 import useFetchData from "@/hooks/useFetchData";
+import { createOrUpdateTransaction } from "@/services/transactionService";
 // import { deletetransaction } from "@/services/transactionService";
 import { TransactionType, WalletType } from "@/types";
 import { scale, verticalScale } from "@/utils/styling";
@@ -71,23 +72,33 @@ const TransactionModal = () => {
   //   }, []);
 
   const onSubmit = async () => {
-    const { type, amount, description, category, date, walletId, image } = transaction;
+    const { type, amount, description, category, date, walletId, image } =
+      transaction;
 
-    if (!walletId || !date || !amount || (type == "expense" && !category)){
-        Alert.alert("Transaction", "Please fill all the fields")
-        return;
+    if (!walletId || !date || !amount || (type == "expense" && !category)) {
+      Alert.alert("Transaction", "Please fill all the fields");
+      return;
     }
 
-    console.log("good to go");
     let transactionData: TransactionType = {
-        type,
-        amount,
-        description,
-        category,
-        date,
-        walletId,
-        image,
-        uid:user?.uid
+      type,
+      amount,
+      description,
+      category,
+      date,
+      walletId,
+      image,
+      uid: user?.uid,
+    };
+
+    //todo: include transaction id if updating
+    setLoading(true);
+    const res = await createOrUpdateTransaction(transactionData);
+    setLoading(false);
+    if (res.success) {
+      router.back();
+    } else {
+      Alert.alert("Transaction data: ", res.msg);
     }
   };
 
@@ -390,7 +401,7 @@ const styles = StyleSheet.create({
     borderColor: colors.neutral300,
     borderRadius: radius._17,
     borderCurve: "continuous",
-    // paddingHorizontal: spacingX._15,
+    paddingHorizontal: spacingX._15,
   },
   androidDropdown: {
     // flexDirection: "row",
@@ -403,11 +414,11 @@ const styles = StyleSheet.create({
     borderColor: colors.neutral300,
     borderRadius: radius._17,
     borderCurve: "continuous",
-    paddingHorizontal: spacingX._15,
+    // paddingHorizontal: spacingX._15,
   },
   flexRow: {
     flexDirection: "row",
-    height: verticalScale(54),
+    // height: verticalScale(54), delete this line
     alignItems: "center",
     gap: spacingX._5,
   },
