@@ -34,7 +34,8 @@ const TransactionList = ({
         date: (item.date as Timestamp)?.toDate()?.toISOString(),
         description: item?.description,
         image: item?.image,
-        uid: item?.walletId,
+        uid: item?.uid,
+        walletId: item?.walletId,
       },
     });
   };
