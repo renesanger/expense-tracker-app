@@ -104,12 +104,12 @@ const TransactionModal = () => {
       category,
       date,
       walletId,
-      image,
+      image: image ? image : null,
       uid: user?.uid,
     };
 
     if (oldTransaction?.id) {
-      transactionData.id = oldTransaction?.id;
+      transactionData.id = oldTransaction.id;
     }
     setLoading(true);
     const res = await createOrUpdateTransaction(transactionData);

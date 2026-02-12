@@ -23,17 +23,17 @@ export const createOrUpdateTransaction = async (
         oldTransaction.amount != amount ||
         oldTransaction.walletId != walletId;
 
-      console.log(oldTransaction);
+      console.log("old transaction: ", oldTransaction);
       if (shouldRevertOriginal) {
         let res = await revertAndUpdateWallets(
           oldTransaction,
           Number(amount),
+          type,
           walletId,
         );
-        if (!res.success) return res;
+        if (!res.success) {return res};
       }
     } else {
-      //update wallet for new transaction
       let res = await updateWalletForNewTransaction(
         walletId!,
         Number(amount),
