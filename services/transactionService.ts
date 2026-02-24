@@ -31,7 +31,9 @@ export const createOrUpdateTransaction = async (
           type,
           walletId,
         );
-        if (!res.success) {return res};
+        if (!res.success) {
+          return res;
+        }
       }
     } else {
       let res = await updateWalletForNewTransaction(
@@ -142,7 +144,7 @@ const revertAndUpdateWallets = async (
         : Number(oldTransaction.amount);
 
     const revertedWalletAmount =
-      Number(oldTransaction.amount) - revertIncomeExpense;
+      Number(oldTransaction.amount) + revertIncomeExpense;
     // wallet amount after the transaction is removed
 
     const revertedIncomeExpenseAmount =
@@ -156,7 +158,7 @@ const revertAndUpdateWallets = async (
         revertedWalletAmount < newTransactionAmount
       ) {
         return {
-          success: "false",
+          success: false,
           msg: "The selected wallet doesn't have enough balance",
         };
       }

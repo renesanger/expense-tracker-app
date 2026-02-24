@@ -29,7 +29,7 @@ const TransactionList = ({
       params: {
         id: item?.id,
         type: item?.type,
-        amount: item?.amount,
+        amount: item?.amount.toString(),
         category: item?.category,
         date: (item.date as Timestamp)?.toDate()?.toISOString(),
         description: item?.description,

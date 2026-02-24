@@ -37,7 +37,7 @@ const TransactionModal = () => {
     description: "",
     category: "",
     date: new Date(),
-    transactionId: "",
+    walletId: "",
     image: null,
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
