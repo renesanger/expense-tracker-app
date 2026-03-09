@@ -1,7 +1,7 @@
 import { firestore } from "@/config/firebase";
 import { colors } from "@/constants/theme";
 import { ResponseType, TransactionType, WalletType } from "@/types";
-import { getLast7Days } from "@/utils/common";
+import { getLast12Months, getLast7Days, getYearsRange } from "@/utils/common";
 import { scale } from "@/utils/styling";
 import {
   collection,
@@ -302,12 +302,12 @@ export const fetchWeeklyStats = async (uid: string): Promise<ResponseType> => {
       transaction.id = doc.id;
       transactions.push(transaction);
 
-      const trasactionDate = (transaction.date as Timestamp)
+      const transactionDate = (transaction.date as Timestamp)
         .toDate()
         .toISOString()
         .split("T")[0];
 
-      const dayData = weeklyData.find((day) => day.date == trasactionDate);
+      const dayData = weeklyData.find((day) => day.date == transactionDate);
 
       if (dayData) {
         if (transaction.type == "income") {
@@ -331,10 +331,133 @@ export const fetchWeeklyStats = async (uid: string): Promise<ResponseType> => {
 
     return { success: true, data: { stats, transactions } };
   } catch (err: any) {
-    console.log("error deleting transaction: ", err);
+    console.log("error fetching weekly transaction: ", err);
     return { success: false, msg: err.message };
   }
 };
-function getLast7days() {
-  throw new Error("Function not implemented.");
-}
+
+// function getLast7days() {
+//   throw new Error("Function not implemented.");
+// }
+
+export const fetchMonthlyStats = async (uid: string): Promise<ResponseType> => {
+  try {
+    const db = firestore;
+    const today = new Date();
+    const twelveMonthsAgo = new Date(today);
+    twelveMonthsAgo.setMonth(today.getMonth() - 12);
+
+    const transactionsQuery = query(
+      collection(db, "transactions"),
+      where("date", ">=", Timestamp.fromDate(twelveMonthsAgo)),
+      where("date", "<=", Timestamp.fromDate(today)),
+      orderBy("date", "desc"),
+      where("uid", "==", uid),
+    );
+
+    const querySnapshot = await getDocs(transactionsQuery);
+    const monthlyData = getLast12Months();
+    const transactions: TransactionType[] = [];
+
+    // mapping each transaction in day
+    querySnapshot.forEach((doc) => {
+      const transaction = doc.data() as TransactionType;
+      transaction.id = doc.id;
+      transactions.push(transaction);
+
+      const transactionDate = (transaction.date as Timestamp).toDate();
+      const monthName = transactionDate.toLocaleString("default", {
+        month: "short",
+      });
+      const shortYear = transactionDate.getFullYear().toString().slice(-2);
+
+      const monthData = monthlyData.find(
+        (month) => month.month === `${monthName} ${shortYear}`,
+      );
+
+      if (monthData) {
+        if (transaction.type == "income") {
+          monthData.income += transaction.amount!;
+        } else if (transaction.type == "expense") {
+          monthData.expense += transaction.amount!;
+        }
+      }
+    });
+
+    const stats = monthlyData.flatMap((month) => [
+      {
+        value: month.income,
+        label: month.month,
+        spacing: scale(4),
+        labelWidth: scale(46),
+        frontColor: colors.primary,
+      },
+      { value: month.expense, frontColor: colors.rose },
+    ]);
+
+    return { success: true, data: { stats, transactions } };
+  } catch (err: any) {
+    console.log("error fetching monthly transaction: ", err);
+    return { success: false, msg: err.message };
+  }
+};
+
+export const fetchYearlyStats = async (uid: string): Promise<ResponseType> => {
+  try {
+    const db = firestore;
+
+    const transactionsQuery = query(
+      collection(db, "transactions"),
+      orderBy("date", "desc"),
+      where("uid", "==", uid),
+    );
+
+    const querySnapshot = await getDocs(transactionsQuery); 
+    const transactions: TransactionType[] = [];
+
+    const firstTransaction = querySnapshot.docs.reduce((earliest, doc) => {
+      const transactionDate = doc.data().date.toDate();
+      return transactionDate < earliest ? transactionDate : earliest;
+    }, new Date())
+    const firstYear = firstTransaction.getFullYear();
+    const currentYear = new Date().getFullYear();
+
+    const yearlyData = getYearsRange(firstYear, currentYear);
+
+    querySnapshot.forEach((doc) => {
+      const transaction = doc.data() as TransactionType;
+      transaction.id = doc.id;
+      transactions.push(transaction);
+
+      const transactionYear = (transaction.date as Timestamp).toDate().getFullYear();
+
+      const yearData = yearlyData.find(
+        (item:any) => item.year === transactionYear.toString(),
+      );
+
+      if (yearData) {
+        if (transaction.type == "income") {
+          yearData.income += transaction.amount!;
+        } else if (transaction.type == "expense") {
+          yearData.expense += transaction.amount!;
+        }
+      }
+    });
+
+    const stats = yearlyData.flatMap((year:any) => [
+      {
+        value: year.income,
+        label: year.year,
+        spacing: scale(4),
+        labelWidth: scale(35),
+        frontColor: colors.primary,
+      },
+      { value: year.expense, frontColor: colors.rose },
+    ]);
+
+    return { success: true, data: { stats, transactions } };
+  } catch (err: any) {
+    console.log("error fetching yearly transaction: ", err);
+    return { success: false, msg: err.message };
+  }
+};
